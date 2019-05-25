@@ -8,3 +8,6 @@ class VideoData(models.Model):
     description = models.TextField(verbose_name="video description",blank=True)
     publish_date = models.DateTimeField(verbose_name="publishing Date Time")
     thumbnail_url = models.URLField(verbose_name="thumbnail url")
+
+    def __str__(self):
+        return self.title
