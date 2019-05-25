@@ -2,6 +2,7 @@ import requests
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 import os
+from django.contrib.auth.decorators import user_passes_test
 from .paginators import StandardResultsSetPagination
 from rest_framework import generics, permissions
 
@@ -18,6 +19,7 @@ def index(request):
     return HttpResponse("Hello World! " + settings.BASE_DIR)
 
 
+@user_passes_test(lambda x: x.is_authenticated and x.is_superuser)
 def youtube_data(request):
     r = requests.get(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&order=date&publishedAfter=2013-01'

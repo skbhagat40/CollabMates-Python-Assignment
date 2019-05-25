@@ -1,6 +1,10 @@
 <html>
 <title>Videos</title>
     <body>
+        <form method="get">
+            {{user_form.as_p}}
+            <input type="submit" value="Submit">
+        </form>
         <div class="categories">
                 <ul >
                 {% for video in all_videos %}
