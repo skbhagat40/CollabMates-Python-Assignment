@@ -5,7 +5,7 @@ import os
 from django.contrib.auth.decorators import user_passes_test
 from .paginators import StandardResultsSetPagination
 from rest_framework import generics, permissions
-
+import threading
 from .models import VideoData
 from .serializers import VideoDataSerializer
 
@@ -19,8 +19,8 @@ def index(request):
     return HttpResponse("Hello World! " + settings.BASE_DIR)
 
 
-@user_passes_test(lambda x: x.is_authenticated and x.is_superuser)
-def youtube_data(request):
+def youtube_data(f_stop):
+    print("i am called")
     r = requests.get(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&order=date&publishedAfter=2013-01'
         '-01T00%3A00%3A00Z&q=ipl&relevanceLanguage=en&safeSearch=strict&topicId=video&key=' + settings.YOUTUBE_KEY)
@@ -46,7 +46,11 @@ def youtube_data(request):
         else:
             print(serializer.errors)
     serializer = VideoDataSerializer(VideoData.objects.all(), many=True)
+    if not f_stop.is_set():
+        # call youtube_data() again in 60 seconds
+        threading.Timer(120, youtube_data, [f_stop]).start()
     return JsonResponse(serializer.data, safe=False)
+
 
 
 class VideosList(generics.ListAPIView):
@@ -54,3 +58,6 @@ class VideosList(generics.ListAPIView):
     queryset = VideoData.objects.order_by('-publish_date')
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
+
+f_stop = threading.Event()
+youtube_data(f_stop)
