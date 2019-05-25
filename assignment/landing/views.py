@@ -1,11 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 import api
-from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
-
 from .forms import FilterForm
-# Create your views here.
 from django.views import generic
 
 
@@ -23,19 +20,20 @@ class VideosListView(generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         user_form = FilterForm()
-        context = super(VideosListView,self).get_context_data(**kwargs)
+        context = super(VideosListView, self).get_context_data(**kwargs)
         context['user_form'] = user_form
         return context
+
     @csrf_exempt
     def get(self, request, *args, **kwargs):
         if 'selected_filter' in request.GET:
             to_apply = request.GET.get('selected_filter')
             context = {}
-            context['all_videos'] =  api.models.VideoData.objects.order_by(to_apply)
+            context['all_videos'] = api.models.VideoData.objects.order_by(to_apply)
             context['user_form'] = FilterForm()
-            return render(request,'landing/video_list.html',context)
+            return render(request, 'landing/video_list.html', context)
         else:
-            return super(VideosListView,self).get(request)
+            return super(VideosListView, self).get(request)
 
 
 class VideoDetailView(generic.DetailView):

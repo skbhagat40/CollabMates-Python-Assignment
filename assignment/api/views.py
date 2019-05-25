@@ -1,26 +1,25 @@
 import requests
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
-import os
-from django.contrib.auth.decorators import user_passes_test
 from .paginators import StandardResultsSetPagination
 from rest_framework import generics, permissions
 import threading
 from .models import VideoData
 from .serializers import VideoDataSerializer
-
 from django.conf import settings
 
-scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
 
-
-# Create your views here.
 def index(request):
-    return HttpResponse("Hello World! " + settings.BASE_DIR)
+    return HttpResponse("Hello World!")
 
 
 def youtube_data(f_stop):
-    print("i am called")
+    ''' makes call to the youtube search api and saves the data to the database.
+        Input Parametres : f_stop - Threading Event
+        Output : None
+        YouTube API -
+        query = ipl
+        result type = videos
+    '''
     r = requests.get(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&order=date&publishedAfter=2013-01'
         '-01T00%3A00%3A00Z&q=ipl&relevanceLanguage=en&safeSearch=strict&topicId=video&key=' + settings.YOUTUBE_KEY)
@@ -45,11 +44,10 @@ def youtube_data(f_stop):
             serializer.save()
         else:
             print(serializer.errors)
-    serializer = VideoDataSerializer(VideoData.objects.all(), many=True)
     if not f_stop.is_set():
         # call youtube_data() again in 60 seconds
         threading.Timer(120, youtube_data, [f_stop]).start()
-    return JsonResponse(serializer.data, safe=False)
+    return None
 
 
 
