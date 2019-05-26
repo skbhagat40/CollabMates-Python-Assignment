@@ -14,3 +14,4 @@ Install the requirements in requirements.py
 5. dashboard url = /videos
 
 The get response of the api endpoint is paginated by 10 videos per page.
+The background api call is made every 10 seconds.
