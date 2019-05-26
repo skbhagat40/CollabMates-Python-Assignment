@@ -45,9 +45,12 @@ def youtube_data():
         for d in global_data:
             key = d['video_id']
             try:
-                _ = VideoData.objects.get(video_id=key)
+                _ = VideoData.objects.filter(video_id=key)
+                if len(_) == 0:
+                    unique_videos.append(d)
             except:
-                unique_videos.append(d)
+                pass
+        print('num unique videos',len(unique_videos))
         for video in unique_videos:
             serializer = VideoDataSerializer(data=video)
             if serializer.is_valid():
